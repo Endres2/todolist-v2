@@ -3,7 +3,8 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const date = require(__dirname + "/date.js");
-const mongoose = require("mongoose")
+const mongoose = require("mongoose");
+const _ = require("lodash");
 
 const app = express();
 
@@ -76,13 +77,31 @@ app.get("/", function (req, res) {
 app.post("/", function (req, res) {
 
   const itemName = req.body.newItem;
-
+  const listName = req.body.list;
   const item = new Item({
     name: itemName
+  });
+  const day = date.getDate();
+  if (listName === day){
+    item.save();
+    res.redirect("/")
+  }else{
+    List.findOne({name:listName})
+  .then(function(docs,err){
+    if(!err){
+      docs.items.push(item)
+      docs.save()
+      res.redirect("/"+listName)
+    }else{
+      console.log(err)
+    }
   })
+  }
 
-  item.save()
-  res.redirect("/");
+
+
+  //item.save()
+  //res.redirect("/");
   // if (req.body.list === "Work") {
   //   workItems.push(item);
   //   res.redirect("/work");
@@ -94,14 +113,29 @@ app.post("/", function (req, res) {
 app.post("/delete", function (req, res) {
 
   const checkedItemId = req.body.checkbox;
+  const listName = req.body.listName
 
-  Item.deleteOne({ _id: checkedItemId })
+  const day = date.getDate();
+  if (listName === day){
+    Item.deleteOne({ _id: checkedItemId })
     .then(function () {
       console.log("Data deleted"); // Success
     }).catch(function (error) {
       console.log(error); // Failure
     });
   res.redirect("/");
+  }else{
+    List.findOneAndUpdate({name:listName},{$pull:{items:{_id:checkedItemId}}})
+  .then(function(docs,err){
+    if(!err){
+      res.redirect("/"+listName)
+    }else{
+      console.log(err)
+    }
+  })
+  }
+
+ 
   // if (req.body.list === "Work") {
   //   workItems.push(item);
   //   res.redirect("/work");
@@ -112,7 +146,7 @@ app.post("/delete", function (req, res) {
 });
 
 app.get("/:costomListName", function (req, res) {
-  const parameter = req.params.costomListName
+  const parameter = _.capitalize(req.params.costomListName);
   console.log(parameter)
 
   List.findOne({name:parameter})
