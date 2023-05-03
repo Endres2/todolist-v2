@@ -34,6 +34,17 @@ const thirdItem = new Item({
 })
 const defaultItems = [firstItem, secondItem, thirdItem]
 
+const listSchema = mongoose.Schema({
+  name:{
+    type:String,
+    required: true
+  },
+  items: [itemsSchema]
+});
+
+const List = mongoose.model("List", listSchema);
+
+
 //Item.insertMany(defaultItems);
 
 // const itemList = [];
@@ -100,8 +111,36 @@ app.post("/delete", function (req, res) {
   // }
 });
 
-app.get("/work", function (req, res) {
-  res.render("list", { listTitle: "Work List", newListItems: workItems });
+app.get("/:costomListName", function (req, res) {
+  const parameter = req.params.costomListName
+  console.log(parameter)
+
+  List.findOne({name:parameter})
+  .then(function(docs,err){
+    if(!err){
+      if(!docs){
+        //create a new list
+        const list = new List({
+          name: parameter,
+          items: defaultItems
+        })
+      
+        list.save();
+        res.redirect("/"+parameter)
+        console.log("Doesn't Exist")
+      }else{
+        //Show an existing list
+        res.render("list", {listTitle:docs.name, newListItems:docs.items})
+        console.log("Exist")
+      }
+    }else{
+      console.log(err)
+    }
+  })
+
+
+
+  //res.render("list", { listTitle: "Work List", newListItems: workItems });
 });
 
 app.get("/about", function (req, res) {
