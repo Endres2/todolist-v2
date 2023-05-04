@@ -5,6 +5,8 @@ const bodyParser = require("body-parser");
 const date = require(__dirname + "/date.js");
 const mongoose = require("mongoose");
 const _ = require("lodash");
+require('dotenv').config()
+console.log(process.env)
 
 const app = express();
 
@@ -13,7 +15,7 @@ app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static("public"));
 
-mongoose.connect("mongodb://localhost:27017/todoListDB").then(() => console.log('Connected!'));
+mongoose.connect("mongodb+srv://andresdhr99:"+process.env.PASSWORD+"@noteapp.0fqvt9x.mongodb.net/?retryWrites=true&w=majority/todoListDB").then(() => console.log('Connected!'));
 
 const itemsSchema = mongoose.Schema({
   name: {
