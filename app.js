@@ -15,7 +15,7 @@ app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static("public"));
 
-mongoose.connect("mongodb+srv://andresdhr99:"+process.env.PASSWORD+"@noteapp.0fqvt9x.mongodb.net/?retryWrites=true&w=majority/todoListDB").then(() => console.log('Connected!'));
+mongoose.connect("mongodb+srv://"+process.env.USER+":"+process.env.PASSWORD+"@noteapp.0fqvt9x.mongodb.net/?retryWrites=true&w=majority/todoListDB").then(() => console.log('Connected!'));
 
 const itemsSchema = mongoose.Schema({
   name: {
